@@ -1,0 +1,18 @@
+{
+	"name": "Tit's Pantry",
+	"short_name": "Pantry",
+	"description": "Klient för Grocy: lager, produkter och inköpslistor",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#18181b",
+	"lang": "sv",
+	"icons": [
+		{
+			"src": "/icon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any maskable"
+		}
+	]
+}
