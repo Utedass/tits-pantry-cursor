@@ -85,6 +85,9 @@ export const sv = {
 		apiKeyHint: 'Skapas per användare i Grocy under Hantera API-nycklar.',
 		timeout: 'Tidsgräns (sekunder)',
 		timeoutHint: 'Hur länge åtgärdspanelen visas innan standardåtgärden körs.',
+		autoExecute: 'Kör standardåtgärd automatiskt',
+		autoExecuteHint:
+			'När detta är av krävs att du trycker på knappen själv. Tidsgränsen gäller fortfarande för oklara träffar.',
 		mixedContent: 'Sidan körs över HTTPS men Grocy-adressen är HTTP. Webbläsaren kommer att blockera anropen.',
 		localProxy: 'HTTP-Grocy på localhost går via Vite-proxyn i utvecklingsläge, så webbläsaren inte blockerar anropet.',
 		localHttp: 'HTTP-Grocy på localhost kräver npm run dev. Webbläsaren blockerar annars anropet (CORS / Local Network Access).',

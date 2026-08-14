@@ -79,6 +79,7 @@ class SmartSession {
 	}
 
 	startTimeout(cancelOnly: boolean) {
+		if (!cancelOnly && !settings.autoExecute) return;
 		this.clearTimer();
 		this.#deadline = Date.now() + settings.timeoutMs;
 		this.secondsLeft = Math.ceil(settings.timeoutMs / 1000);
