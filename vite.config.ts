@@ -2,9 +2,11 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { grocyDevProxy } from './vite.grocy-proxy.ts';
 
 export default defineConfig({
 	plugins: [
+		grocyDevProxy(),
 		tailwindcss(),
 		sveltekit({
 			compilerOptions: {

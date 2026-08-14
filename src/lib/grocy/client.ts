@@ -1,6 +1,14 @@
+import { browser, dev } from '$app/environment';
 import { settings } from '$lib/settings.svelte.js';
 import { format, sv } from '$lib/i18n/sv.js';
 import { endpoints } from './endpoints.js';
+import {
+	DEV_PROXY_PREFIX,
+	GROCY_ORIGIN_HEADER,
+	grocyBaseUrl,
+	loopbackProxyTarget,
+	usesDevProxy
+} from './local-url.js';
 import type {
 	CreateProductBody,
 	ExternalBarcodeLookupResponse,
@@ -33,16 +41,22 @@ export class GrocyError extends Error {
 	}
 }
 
+function grocyOrigin(): string {
+	return grocyBaseUrl(settings.grocyUrl);
+}
+
 function apiBase(): string {
-	let base = settings.grocyUrl.trim().replace(/\/+$/, '');
-	if (base.toLowerCase().endsWith('/api')) {
-		base = base.slice(0, -4);
-	}
-	return base;
+	const origin = grocyOrigin();
+	if (usesDevProxy(origin, dev)) return DEV_PROXY_PREFIX;
+	return origin;
 }
 
 function buildUrl(path: string, query?: Record<string, string | string[] | undefined>): string {
-	const url = new URL(`${apiBase()}/api/${path.replace(/^\//, '')}`);
+	const suffix = `/api/${path.replace(/^\//, '')}`;
+	const base = apiBase();
+	const url = base.startsWith('/')
+		? new URL(`${base}${suffix}`, browser ? window.location.origin : 'http://localhost')
+		: new URL(`${base}${suffix}`);
 	if (query) {
 		for (const [key, value] of Object.entries(query)) {
 			if (value === undefined) continue;
@@ -56,6 +70,25 @@ function buildUrl(path: string, query?: Record<string, string | string[] | undef
 	return url.toString();
 }
 
+function parseBody(text: string): unknown {
+	if (!text) return null;
+	try {
+		return JSON.parse(text);
+	} catch {
+		return text;
+	}
+}
+
+function fetchFailureError(cause: unknown): GrocyError {
+	if (settings.mixedContentRisk) {
+		return new GrocyError(sv.errors.mixedContent, 0, cause, true);
+	}
+	if (loopbackProxyTarget(settings.grocyUrl) && !dev) {
+		return new GrocyError(sv.errors.localHttp, 0, cause, true);
+	}
+	return new GrocyError(sv.errors.cors, 0, cause, true);
+}
+
 async function request<T>(
 	path: string,
 	init: RequestInit & { query?: Record<string, string | string[] | undefined> } = {}
@@ -64,6 +97,9 @@ async function request<T>(
 	const headers = new Headers(rest.headers);
 	headers.set('GROCY-API-KEY', settings.apiKey);
 	headers.set('Accept', 'application/json');
+	if (usesDevProxy(grocyOrigin(), dev)) {
+		headers.set(GROCY_ORIGIN_HEADER, grocyOrigin());
+	}
 	if (rest.body && !headers.has('Content-Type')) {
 		headers.set('Content-Type', 'application/json');
 	}
@@ -76,7 +112,7 @@ async function request<T>(
 			credentials: 'omit'
 		});
 	} catch (error) {
-		throw new GrocyError(sv.errors.cors, 0, error, true);
+		throw fetchFailureError(error);
 	}
 
 	if (response.status === 204) {
@@ -84,11 +120,20 @@ async function request<T>(
 	}
 
 	const text = await response.text();
-	const json = text ? JSON.parse(text) : null;
+	const json = parseBody(text);
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			throw new GrocyError(sv.errors.unauthorized, 401, json);
+		}
+		const detail =
+			json && typeof json === 'object' && 'error_message' in json
+				? String((json as { error_message: unknown }).error_message)
+				: null;
 		throw new GrocyError(
-			format(sv.errors.requestFailed, { status: response.status }),
+			detail
+				? format(sv.errors.requestFailedDetail, { status: response.status, detail })
+				: format(sv.errors.requestFailed, { status: response.status }),
 			response.status,
 			json
 		);

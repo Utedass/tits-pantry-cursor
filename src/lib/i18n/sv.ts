@@ -80,12 +80,14 @@ export const sv = {
 		title: 'Inställningar',
 		lead: 'API-nyckel och adress sparas bara i den här webbläsaren.',
 		url: 'Grocy-adress',
-		urlHint: 'Till exempel http://grocy.local eller https://grocy.example',
+		urlHint: 'Till exempel https://grocy.example eller http://127.0.0.1:9283',
 		apiKey: 'API-nyckel',
 		apiKeyHint: 'Skapas per användare i Grocy under Hantera API-nycklar.',
 		timeout: 'Tidsgräns (sekunder)',
 		timeoutHint: 'Hur länge åtgärdspanelen visas innan standardåtgärden körs.',
 		mixedContent: 'Sidan körs över HTTPS men Grocy-adressen är HTTP. Webbläsaren kommer att blockera anropen.',
+		localProxy: 'HTTP-Grocy på localhost går via Vite-proxyn i utvecklingsläge, så webbläsaren inte blockerar anropet.',
+		localHttp: 'HTTP-Grocy på localhost kräver npm run dev. Webbläsaren blockerar annars anropet (CORS / Local Network Access).',
 		saved: 'Inställningarna är sparade.',
 		connected: 'Ansluten till Grocy {version}',
 		connectFailed: 'Kunde inte ansluta. Kontrollera adress, nyckel och CORS.'
@@ -95,6 +97,10 @@ export const sv = {
 		unknownBarcode: 'Streckkoden finns inte i Grocy.',
 		noProduct: 'Ingen produkt hittades.',
 		requestFailed: 'Grocy svarade {status}',
+		requestFailedDetail: 'Grocy svarade {status}: {detail}',
+		unauthorized: 'Grocy avvisade API-nyckeln (401). Kontrollera att nyckeln tillhör den instansen.',
+		mixedContent: 'Webbläsaren blockerar HTTP-Grocy från en HTTPS-sida.',
+		localHttp: 'Webbläsaren blockerar HTTP-Grocy på localhost. Använd npm run dev, eller 127.0.0.1 i stället för localhost.',
 		cors: 'Webbläsaren blockerade anropet (CORS). Kontrollera att Grocy tillåter din origin.'
 	}
 } as const;

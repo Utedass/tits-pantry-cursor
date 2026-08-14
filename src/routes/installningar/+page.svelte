@@ -7,9 +7,11 @@
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 	import { catalog } from '$lib/grocy/catalog.svelte.js';
 	import { grocy } from '$lib/grocy/client.js';
+	import { isLoopbackGrocyUrl } from '$lib/grocy/local-url.js';
 	import { format, sv } from '$lib/i18n/sv.js';
 	import { settings } from '$lib/settings.svelte.js';
 	import { toast } from 'svelte-sonner';
+	import { dev } from '$app/environment';
 
 	let grocyUrl = $state(settings.grocyUrl);
 	let apiKey = $state(settings.apiKey);
@@ -22,6 +24,7 @@
 			window.location.protocol === 'https:' &&
 			grocyUrl.trim().toLowerCase().startsWith('http://')
 	);
+	const localLoopback = $derived(isLoopbackGrocyUrl(grocyUrl));
 
 	async function save() {
 		settings.save({
@@ -59,6 +62,10 @@
 		<Alert.Root variant="destructive">
 			<Alert.Title>{sv.settings.mixedContent}</Alert.Title>
 		</Alert.Root>
+	{:else if localLoopback && grocyUrl.trim().toLowerCase().startsWith('http://')}
+		<Alert.Root>
+			<Alert.Title>{dev ? sv.settings.localProxy : sv.settings.localHttp}</Alert.Title>
+		</Alert.Root>
 	{/if}
 
 	<Card.Root>
@@ -70,7 +77,7 @@
 			<Field.FieldGroup>
 				<Field.Field>
 					<Field.FieldLabel for="grocy-url">{sv.settings.url}</Field.FieldLabel>
-					<Input id="grocy-url" bind:value={grocyUrl} placeholder="http://192.168.1.10:9283" />
+					<Input id="grocy-url" bind:value={grocyUrl} placeholder="http://127.0.0.1:9283" />
 					<Field.FieldDescription>{sv.settings.urlHint}</Field.FieldDescription>
 				</Field.Field>
 				<Field.Field>
