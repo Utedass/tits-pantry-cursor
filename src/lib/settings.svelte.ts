@@ -7,15 +7,16 @@ export type AppSettings = {
 	grocyUrl: string;
 	apiKey: string;
 	timeoutMs: number;
+	autoExecute: boolean;
 };
 
 function readStored(): AppSettings {
 	if (!browser) {
-		return { grocyUrl: '', apiKey: '', timeoutMs: DEFAULT_TIMEOUT_MS };
+		return { grocyUrl: '', apiKey: '', timeoutMs: DEFAULT_TIMEOUT_MS, autoExecute: true };
 	}
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);
-		if (!raw) return { grocyUrl: '', apiKey: '', timeoutMs: DEFAULT_TIMEOUT_MS };
+		if (!raw) return { grocyUrl: '', apiKey: '', timeoutMs: DEFAULT_TIMEOUT_MS, autoExecute: true };
 		const parsed = JSON.parse(raw) as Partial<AppSettings>;
 		return {
 			grocyUrl: typeof parsed.grocyUrl === 'string' ? parsed.grocyUrl : '',
@@ -23,10 +24,11 @@ function readStored(): AppSettings {
 			timeoutMs:
 				typeof parsed.timeoutMs === 'number' && parsed.timeoutMs > 0
 					? parsed.timeoutMs
-					: DEFAULT_TIMEOUT_MS
+					: DEFAULT_TIMEOUT_MS,
+			autoExecute: typeof parsed.autoExecute === 'boolean' ? parsed.autoExecute : true
 		};
 	} catch {
-		return { grocyUrl: '', apiKey: '', timeoutMs: DEFAULT_TIMEOUT_MS };
+		return { grocyUrl: '', apiKey: '', timeoutMs: DEFAULT_TIMEOUT_MS, autoExecute: true };
 	}
 }
 
@@ -34,12 +36,14 @@ class SettingsStore {
 	grocyUrl = $state('');
 	apiKey = $state('');
 	timeoutMs = $state(DEFAULT_TIMEOUT_MS);
+	autoExecute = $state(true);
 
 	constructor() {
 		const stored = readStored();
 		this.grocyUrl = stored.grocyUrl;
 		this.apiKey = stored.apiKey;
 		this.timeoutMs = stored.timeoutMs;
+		this.autoExecute = stored.autoExecute;
 	}
 
 	get configured(): boolean {
@@ -57,13 +61,15 @@ class SettingsStore {
 		this.grocyUrl = next.grocyUrl.trim().replace(/\/+$/, '');
 		this.apiKey = next.apiKey.trim();
 		this.timeoutMs = next.timeoutMs > 0 ? next.timeoutMs : DEFAULT_TIMEOUT_MS;
+		this.autoExecute = next.autoExecute;
 		if (!browser) return;
 		localStorage.setItem(
 			STORAGE_KEY,
 			JSON.stringify({
 				grocyUrl: this.grocyUrl,
 				apiKey: this.apiKey,
-				timeoutMs: this.timeoutMs
+				timeoutMs: this.timeoutMs,
+				autoExecute: this.autoExecute
 			} satisfies AppSettings)
 		);
 	}

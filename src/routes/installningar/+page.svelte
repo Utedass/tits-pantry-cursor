@@ -5,6 +5,7 @@
 	import * as Field from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { catalog } from '$lib/grocy/catalog.svelte.js';
 	import { grocy } from '$lib/grocy/client.js';
 	import { isLoopbackGrocyUrl } from '$lib/grocy/local-url.js';
@@ -16,6 +17,7 @@
 	let grocyUrl = $state(settings.grocyUrl);
 	let apiKey = $state(settings.apiKey);
 	let timeoutSec = $state(settings.timeoutMs / 1000);
+	let autoExecute = $state(settings.autoExecute);
 	let testing = $state(false);
 	let version = $state<string | null>(null);
 
@@ -30,7 +32,8 @@
 		settings.save({
 			grocyUrl,
 			apiKey,
-			timeoutMs: Math.round(timeoutSec * 1000)
+			timeoutMs: Math.round(timeoutSec * 1000),
+			autoExecute
 		});
 		toast.success(sv.settings.saved);
 	}
@@ -89,6 +92,13 @@
 					<Field.FieldLabel for="timeout">{sv.settings.timeout}</Field.FieldLabel>
 					<Input id="timeout" type="number" min="1" step="1" bind:value={timeoutSec} />
 					<Field.FieldDescription>{sv.settings.timeoutHint}</Field.FieldDescription>
+				</Field.Field>
+				<Field.Field orientation="horizontal">
+					<Switch id="auto-execute" bind:checked={autoExecute} />
+					<Field.FieldContent>
+						<Field.FieldLabel for="auto-execute">{sv.settings.autoExecute}</Field.FieldLabel>
+						<Field.FieldDescription>{sv.settings.autoExecuteHint}</Field.FieldDescription>
+					</Field.FieldContent>
 				</Field.Field>
 			</Field.FieldGroup>
 		</Card.Content>
