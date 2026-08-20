@@ -1,0 +1,18 @@
+---
+description: How local and cloud agents call the public Grocy 4.5.0 API
+alwaysApply: true
+---
+
+# Grocy API testing
+
+Use the public Grocy **dev** server via `GROCY_URL` and `GROCY_API_KEY`. Do not use localhost Grocy from a cloud agent.
+
+```sh
+npm run grocy -- ping
+npm run grocy -- get objects/products
+```
+
+- Load credentials from `.env` locally, or from Cursor Cloud Secrets in the cloud. Never commit `.env`.
+- Never print `GROCY_API_KEY` or pass it as a CLI flag / query string.
+- Prefer GET. Mutating calls belong on clearly named test data and should be reversed.
+- App settings in `localStorage` are for the browser UI only. Agent API checks go through `npm run grocy`.

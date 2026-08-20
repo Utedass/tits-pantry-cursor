@@ -17,6 +17,8 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
+		"test:grocy": "node scripts/grocy.mjs ping",
+		"grocy": "node scripts/grocy.mjs",
 		"gen:types": "node scripts/gen-types.mjs"
 	},
 	"devDependencies": {

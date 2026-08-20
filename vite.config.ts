@@ -3,6 +3,9 @@ import { defineConfig } from 'vitest/config';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { grocyDevProxy } from './vite.grocy-proxy.ts';
+import { loadDotEnv } from './scripts/load-env.mjs';
+
+loadDotEnv();
 
 export default defineConfig({
 	plugins: [
